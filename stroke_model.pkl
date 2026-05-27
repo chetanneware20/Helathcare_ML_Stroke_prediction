@@ -7,30 +7,43 @@ from sklearn.ensemble import RandomForestClassifier
 # Load dataset
 df = pd.read_csv("healthcare-dataset-stroke-data.csv")
 
-# Drop id column
-df.drop("id", axis=1, inplace=True)
+# Drop unnecessary column
+if "id" in df.columns:
+    df.drop("id", axis=1, inplace=True)
 
-# Fill missing bmi
-df["bmi"].fillna(df["bmi"].mean(), inplace=True)
+# Fill missing BMI values
+df["bmi"] = df["bmi"].fillna(df["bmi"].mean())
 
-# Encode categorical columns
-df["gender"] = df["gender"].map({"Male":1, "Female":0})
-df["ever_married"] = df["ever_married"].map({"Yes":1, "No":0})
-df["Residence_type"] = df["Residence_type"].map({"Urban":1, "Rural":0})
+# Encoding
+df["gender"] = df["gender"].map({
+    "Male": 1,
+    "Female": 0,
+    "Other": 2
+})
+
+df["ever_married"] = df["ever_married"].map({
+    "Yes": 1,
+    "No": 0
+})
+
+df["Residence_type"] = df["Residence_type"].map({
+    "Urban": 1,
+    "Rural": 0
+})
 
 work_map = {
-    "Private":0,
-    "Self-employed":1,
-    "Govt_job":2,
-    "children":3,
-    "Never_worked":4
+    "Private": 0,
+    "Self-employed": 1,
+    "Govt_job": 2,
+    "children": 3,
+    "Never_worked": 4
 }
 
 smoking_map = {
-    "formerly smoked":0,
-    "never smoked":1,
-    "smokes":2,
-    "Unknown":3
+    "formerly smoked": 0,
+    "never smoked": 1,
+    "smokes": 2,
+    "Unknown": 3
 }
 
 df["work_type"] = df["work_type"].map(work_map)
@@ -40,16 +53,17 @@ df["smoking_status"] = df["smoking_status"].map(smoking_map)
 X = df.drop("stroke", axis=1)
 y = df["stroke"]
 
-# Train-test split
+# Train test split
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y,
+    X,
+    y,
     test_size=0.2,
     random_state=42
 )
 
 # Train model
 model = RandomForestClassifier(
-    n_estimators=200,
+    n_estimators=100,
     random_state=42
 )
 
@@ -58,4 +72,4 @@ model.fit(X_train, y_train)
 # Save model
 joblib.dump(model, "stroke_model.pkl")
 
-print("Model saved successfully!")
+print("stroke_model.pkl created successfully!")
