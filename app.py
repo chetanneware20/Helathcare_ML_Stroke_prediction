@@ -9,19 +9,22 @@ st.set_page_config(
     layout="centered"
 )
 
-st.title("🩺 Stroke Prediction App")
-st.write("Enter patient details to predict stroke risk.")
-
-# Load model
 MODEL_PATH = "stroke_model.pkl"
 
+# Check model file
 if not os.path.exists(MODEL_PATH):
     st.error("stroke_model.pkl file not found!")
     st.stop()
 
-model = joblib.load(MODEL_PATH)
+# Load model safely
+try:
+    model = joblib.load(MODEL_PATH)
+except Exception as e:
+    st.error(f"Error loading model: {e}")
+    st.stop()
 
-# Input fields
+st.title("🩺 Stroke Prediction App")
+
 gender = st.selectbox("Gender", ["Male", "Female"])
 age = st.slider("Age", 1, 100, 30)
 
@@ -89,7 +92,6 @@ smoking_map = {
     "Unknown": 3
 }
 
-# Create dataframe
 input_df = pd.DataFrame({
     "gender": [gender_map[gender]],
     "age": [age],
@@ -103,23 +105,18 @@ input_df = pd.DataFrame({
     "smoking_status": [smoking_map[smoking_status]]
 })
 
-# Prediction
 if st.button("Predict Stroke Risk"):
 
     prediction = model.predict(input_df)[0]
 
-    probability = model.predict_proba(input_df)[0][1]
-
-    st.subheader("Prediction Result")
+    try:
+        probability = model.predict_proba(input_df)[0][1]
+    except:
+        probability = 0
 
     if prediction == 1:
         st.error("⚠️ High Risk of Stroke")
     else:
         st.success("✅ Low Risk of Stroke")
 
-    st.write(f"### Prediction Probability: {probability:.2%}")
-
-    st.progress(float(probability))
-
-st.markdown("---")
-st.caption("Built using Streamlit & Machine Learning")
+    st.write(f"Prediction Probability: {probability:.2%}")
