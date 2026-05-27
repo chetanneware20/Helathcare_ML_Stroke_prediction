@@ -2,7 +2,12 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+import os
 
+if os.path.exists("stroke_model.pkl"):
+    model = joblib.load("stroke_model.pkl")
+else:
+    st.error("Model file not found!")
 # Load model
 model = joblib.load("stroke_model.pkl")
 
