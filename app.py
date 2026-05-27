@@ -4,6 +4,17 @@ import numpy as np
 import joblib
 import os
 
+
+
+MODEL_PATH = "stroke_model.pkl"
+
+if not os.path.exists(MODEL_PATH):
+    st.error("Model file stroke_model.pkl not found!")
+    st.stop()
+
+model = joblib.load(MODEL_PATH)
+
+st.title("Stroke Prediction App")
 if os.path.exists("stroke_model.pkl"):
     model = joblib.load("stroke_model.pkl")
 else:
