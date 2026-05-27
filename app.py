@@ -1,33 +1,44 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import joblib
 import os
 
 st.set_page_config(
-    page_title="Stroke Prediction App",
+    page_title="Stroke Prediction",
     page_icon="🩺",
     layout="centered"
 )
 
-# Load model safely
+st.title("🩺 Stroke Prediction App")
+st.write("Enter patient details to predict stroke risk.")
+
+# Load model
 MODEL_PATH = "stroke_model.pkl"
 
 if not os.path.exists(MODEL_PATH):
-    st.error("Model file stroke_model.pkl not found!")
+    st.error("stroke_model.pkl file not found!")
     st.stop()
 
 model = joblib.load(MODEL_PATH)
 
-st.title("🩺 Healthcare Stroke Prediction")
-st.write("Predict stroke risk using Machine Learning")
-
-# User Inputs
+# Input fields
 gender = st.selectbox("Gender", ["Male", "Female"])
 age = st.slider("Age", 1, 100, 30)
-hypertension = st.selectbox("Hypertension", [0, 1])
-heart_disease = st.selectbox("Heart Disease", [0, 1])
-ever_married = st.selectbox("Ever Married", ["Yes", "No"])
+
+hypertension = st.selectbox(
+    "Hypertension",
+    ["No", "Yes"]
+)
+
+heart_disease = st.selectbox(
+    "Heart Disease",
+    ["No", "Yes"]
+)
+
+ever_married = st.selectbox(
+    "Ever Married",
+    ["No", "Yes"]
+)
 
 work_type = st.selectbox(
     "Work Type",
@@ -60,7 +71,7 @@ smoking_status = st.selectbox(
 
 # Encoding
 gender_map = {"Male": 1, "Female": 0}
-married_map = {"Yes": 1, "No": 0}
+yes_no = {"Yes": 1, "No": 0}
 residence_map = {"Urban": 1, "Rural": 0}
 
 work_map = {
@@ -79,12 +90,12 @@ smoking_map = {
 }
 
 # Create dataframe
-input_data = pd.DataFrame({
+input_df = pd.DataFrame({
     "gender": [gender_map[gender]],
     "age": [age],
-    "hypertension": [hypertension],
-    "heart_disease": [heart_disease],
-    "ever_married": [married_map[ever_married]],
+    "hypertension": [yes_no[hypertension]],
+    "heart_disease": [yes_no[heart_disease]],
+    "ever_married": [yes_no[ever_married]],
     "work_type": [work_map[work_type]],
     "Residence_type": [residence_map[Residence_type]],
     "avg_glucose_level": [avg_glucose_level],
@@ -94,12 +105,21 @@ input_data = pd.DataFrame({
 
 # Prediction
 if st.button("Predict Stroke Risk"):
-    prediction = model.predict(input_data)[0]
+
+    prediction = model.predict(input_df)[0]
+
+    probability = model.predict_proba(input_df)[0][1]
+
+    st.subheader("Prediction Result")
 
     if prediction == 1:
         st.error("⚠️ High Risk of Stroke")
     else:
         st.success("✅ Low Risk of Stroke")
 
+    st.write(f"### Prediction Probability: {probability:.2%}")
+
+    st.progress(float(probability))
+
 st.markdown("---")
-st.caption("Built with Streamlit & Machine Learning")
+st.caption("Built using Streamlit & Machine Learning")
