@@ -1,59 +1,31 @@
 import pandas as pd
 import joblib
 
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
 
 # Load dataset
 df = pd.read_csv("healthcare-dataset-stroke-data.csv")
 
-# Drop unnecessary column
+# Remove id
 if "id" in df.columns:
-    df.drop("id", axis=1, inplace=True)
+    df.drop(columns=["id"], inplace=True)
 
-# Fill missing BMI values
+# Fill missing BMI
 df["bmi"] = df["bmi"].fillna(df["bmi"].mean())
 
-# Encoding
-df["gender"] = df["gender"].map({
-    "Male": 1,
-    "Female": 0,
-    "Other": 2
-})
-
-df["ever_married"] = df["ever_married"].map({
-    "Yes": 1,
-    "No": 0
-})
-
-df["Residence_type"] = df["Residence_type"].map({
-    "Urban": 1,
-    "Rural": 0
-})
-
-work_map = {
-    "Private": 0,
-    "Self-employed": 1,
-    "Govt_job": 2,
-    "children": 3,
-    "Never_worked": 4
-}
-
-smoking_map = {
-    "formerly smoked": 0,
-    "never smoked": 1,
-    "smokes": 2,
-    "Unknown": 3
-}
-
-df["work_type"] = df["work_type"].map(work_map)
-df["smoking_status"] = df["smoking_status"].map(smoking_map)
+# Encode categorical columns
+df["gender"] = df["gender"].astype("category").cat.codes
+df["ever_married"] = df["ever_married"].astype("category").cat.codes
+df["work_type"] = df["work_type"].astype("category").cat.codes
+df["Residence_type"] = df["Residence_type"].astype("category").cat.codes
+df["smoking_status"] = df["smoking_status"].astype("category").cat.codes
 
 # Features and target
 X = df.drop("stroke", axis=1)
 y = df["stroke"]
 
-# Train test split
+# Split
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -61,15 +33,12 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=42
 )
 
-# Train model
-model = RandomForestClassifier(
-    n_estimators=100,
-    random_state=42
-)
+# Train simple sklearn model
+model = RandomForestClassifier()
 
 model.fit(X_train, y_train)
 
 # Save model
 joblib.dump(model, "stroke_model.pkl")
 
-print("stroke_model.pkl created successfully!")
+print("NEW MODEL CREATED")
