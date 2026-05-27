@@ -7,14 +7,14 @@ from sklearn.model_selection import train_test_split
 # Load dataset
 df = pd.read_csv("healthcare-dataset-stroke-data.csv")
 
-# Drop ID column
+# Remove ID column
 if "id" in df.columns:
-    df.drop(columns=["id"], inplace=True)
+    df.drop("id", axis=1, inplace=True)
 
-# Fill missing BMI
+# Fill missing values
 df["bmi"] = df["bmi"].fillna(df["bmi"].mean())
 
-# Convert categorical columns
+# Encode categorical columns
 categorical_cols = [
     "gender",
     "ever_married",
@@ -26,11 +26,11 @@ categorical_cols = [
 for col in categorical_cols:
     df[col] = df[col].astype("category").cat.codes
 
-# Features and target
+# Split features and target
 X = df.drop("stroke", axis=1)
 y = df["stroke"]
 
-# Split data
+# Train-test split
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -39,14 +39,11 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # Train model
-model = RandomForestClassifier(
-    n_estimators=100,
-    random_state=42
-)
+model = RandomForestClassifier()
 
 model.fit(X_train, y_train)
 
-# Save REAL model
+# SAVE MODEL
 joblib.dump(model, "stroke_model.pkl")
 
-print("Valid stroke_model.pkl created successfully!")
+print("REAL MODEL FILE CREATED")
