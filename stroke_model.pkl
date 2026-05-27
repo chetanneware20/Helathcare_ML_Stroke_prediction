@@ -4,18 +4,18 @@ import joblib
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-# Load dataset
+# Read dataset
 df = pd.read_csv("healthcare-dataset-stroke-data.csv")
 
-# Remove ID column
+# Drop ID column
 if "id" in df.columns:
-    df.drop("id", axis=1, inplace=True)
+    df.drop(columns=["id"], inplace=True)
 
-# Fill missing values
+# Fill BMI missing values
 df["bmi"] = df["bmi"].fillna(df["bmi"].mean())
 
 # Encode categorical columns
-categorical_cols = [
+cols = [
     "gender",
     "ever_married",
     "work_type",
@@ -23,14 +23,14 @@ categorical_cols = [
     "smoking_status"
 ]
 
-for col in categorical_cols:
+for col in cols:
     df[col] = df[col].astype("category").cat.codes
 
-# Split features and target
+# Features and target
 X = df.drop("stroke", axis=1)
 y = df["stroke"]
 
-# Train-test split
+# Split
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -43,7 +43,7 @@ model = RandomForestClassifier()
 
 model.fit(X_train, y_train)
 
-# SAVE MODEL
+# Save REAL binary model
 joblib.dump(model, "stroke_model.pkl")
 
-print("REAL MODEL FILE CREATED")
+print("SUCCESS")
